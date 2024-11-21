@@ -9,8 +9,8 @@ function App() {
     <CartContextProvider>
       <Header />
       <Routes>
-        <Route path="/" element={<Shop />}/>
-        <Route path="/checkout" element={<Checkout />}/>
+        <Route path="/" element={<Shop />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </CartContextProvider>
   );

@@ -18,43 +18,44 @@ export default function CartContextProvider({ children }) {
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
+
             const response = await fetch("https://dummyjson.com/products/category/motorcycle?limit=12&select=id,thumbnail,title,price,description");
             if (response.ok) {
                 const result = await response.json();
                 setProducts(result.products);
             } else {
-                setError("Fetch FAILED!");
+                setError("Fatch FAILED!");
             }
+
             setLoading(false);
         }
 
         fetchProducts();
-    }, []);
+    }, [])
 
-    // SHOPPING CART
+    //SHOPPING CART
 
     function cartReducer(state, action) {
-
         if (action.type === "ADD_ITEM") {
-            const updatedItems = [...state.items];
+            const updateItems = [...state.items];
 
-            const existingCartItemIndex = updatedItems.findIndex(
+            const existingCartItemIndex = updateItems.findIndex(
                 (item) => item.id === action.payload.id
             );
 
-            const existingCartItem = updatedItems[existingCartItemIndex];
+            const existingCartItem = updateItems[existingCartItemIndex];
 
             if (existingCartItem) {
                 const updatedItem = {
                     ...existingCartItem,
                     quantity: existingCartItem.quantity + 1,
                 }
-                updatedItems[existingCartItemIndex] = updatedItem;
+                updateItems[existingCartItemIndex] = updatedItem;
             } else {
                 const product = action.payload.products.find(
                     (product) => product.id === action.payload.id
                 );
-                updatedItems.push({
+                updateItems.push({
                     id: action.payload.id,
                     thumbnail: product.thumbnail,
                     title: product.title,
@@ -63,7 +64,7 @@ export default function CartContextProvider({ children }) {
                 });
             }
 
-            return { items: updatedItems };
+            return { items: updateItems };
         }
 
         if (action.type === "UPDATE_ITEM") {
@@ -73,16 +74,20 @@ export default function CartContextProvider({ children }) {
                 (item) => item.id === action.payload.id
             );
 
-            const updatedItem = { ...updatedItems[updatedItemIndex] };
 
-            updatedItem.quantity += action.payload.amount;
 
-            if (updatedItem.quantity < 1) {
-                updatedItems.splice(updatedItemIndex, 1);
-            } else {
-                updatedItems[updatedItemIndex] = updatedItem;
+
+
+            if (updatedItemIndex !== -1) {
+                const updatedItem = { ...updatedItems[updatedItemIndex] };
+                updatedItem.quantity += action.payload.amount;
+
+                if (updatedItem.quantity <= 0) {
+                    updatedItems.splice(updatedItemIndex, 1);
+                } else {
+                    updatedItems[updatedItemIndex] = updatedItem;
+                }
             }
-
             return { ...state, items: updatedItems };
         }
 
@@ -120,5 +125,4 @@ export default function CartContextProvider({ children }) {
     return <CartContext.Provider value={ctx}>
         {children}
     </CartContext.Provider>
-
 }
